@@ -1,5 +1,7 @@
 import time
 import sys
+import json
+import traceback
 
 from pprint import pprint
 
@@ -10,11 +12,21 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+def save_prices(prices):
+    with open('prices.json', 'w') as f:
+        json.dump(prices, f)
+
+def load_prices():
+    try:
+        with open('prices.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
 def load_products():
     with open('products.txt') as f:
         products = f.readlines()
     return products
-
 
 def get_prices(products):
     res = {}
@@ -88,9 +100,32 @@ def get_prices(products):
 
 def main():
     products = load_products()
-    prices = get_prices(products)
-#    print(prices)
+    prices_now = get_prices(products)
+  
+#    print(prices_now)
 
+    PRICES = load_prices()
+
+    new_price = False
+    for url, prices in prices_now.items():
+        if url not in PRICES:
+            PRICES[url] = []
+
+        for price in prices:
+            if price not in PRICES[url]:  # Avoid adding duplicate prices
+                new_price = True
+                print(url, '-', price)
+                PRICES[url].append(price)
+
+    save_prices(PRICES)
+
+    return new_price
 
 if __name__ == '__main__':
-    main()
+    try:
+        res=main()
+        if res:
+            input('New price found!\nPress enter to exit...')
+    except:
+        traceback.print_exc()  # This will print the full stack trace
+        input('Press enter to exit...')

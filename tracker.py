@@ -1,41 +1,96 @@
 import time
+import sys
+
+from pprint import pprint
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 
-# Set up options for the driver
-options = Options()
-options.headless = True
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-# Set the path to the geckodriver executable
-gecko_path = r'S:\GitHub\takealot-price-tracker\geckodriver-v0.33.0-win64\geckodriver.exe'
+def load_products():
+    with open('products.txt') as f:
+        products = f.readlines()
+    return products
 
-# Initialize the driver
-#driver = webdriver.Firefox(executable_path=gecko_path, options=options)
-driver = webdriver.Firefox(options=options)
-try:
-    # navigate to a page
-    url = "https://www.takealot.com/xiaomi-redmi-9t-128gb-carbon-grey/PLID72013248"
-    driver.get(url)
 
-    # retrieve text
+def get_prices(products):
+    res = {}
 
-#    print(driver)
-#    print(dir(driver))
+    # Set up options for the driver
+    options = Options()
+    options.headless = True
 
-#    element_text = driver.find_element_by_tag_name('body').text
+    # Set the path to the geckodriver executable
+    #gecko_path = r'S:\GitHub\takealot-price-tracker\geckodriver-v0.33.0-win64\geckodriver.exe'
 
-# <span class="currency plus currency-module_currency_29IIm" data-ref="buybox-price-main">R 4,250</span>
+    # Initialize the driver
+    #driver = webdriver.Firefox(executable_path=gecko_path, options=options)
+    driver = webdriver.Firefox(options=options)
+    try:
+        for url in products:
+            url = url.strip()
+            if not url:
+                continue
 
-    element = driver.find_element(By.CSS_SELECTOR ,'span.currency.plus.currency-module_currency_29IIm')    
+            # navigate to a page
+#            url = "https://www.takealot.com/xiaomi-redmi-9t-128gb-carbon-grey/PLID72013248"
+            print(url)
+            driver.get(url)
 
-    price = element.text
-    print(price)
-    assert price.startswith('R')   
+            # Wait until the 'div.sf-buybox' element is loaded
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox')))
 
-finally:
-    time.sleep(5)
+            # retrieve text
 
-    # close the browser
-    driver.quit()
+        #    print(driver)
+        #    print(dir(driver))
+
+        #    element_text = driver.find_element_by_tag_name('body').text
+
+        # <span class="currency plus currency-module_currency_29IIm" data-ref="buybox-price-main">R 4,250</span>
+
+#            element = driver.find_element(By.CSS_SELECTOR ,'span.currency.plus.currency-module_currency_29IIm')    
+#            element = driver.find_element(By.XPATH,'//*[@id="shopfront-app"]/div[4]/div[1]/div[2]/div/div[1]/div/div/div[2]/div[2]/div[1]/div[1]/span')  
+
+#            time.sleep(1)
+            element = driver.find_element(By.CSS_SELECTOR,'div.sf-buybox')
+
+            # Extract the prices from the element's text
+            prices = [price for price in element.text.split('\n') if price.startswith('R')]
+#            price = price_line.split()[0]  # Get the first word in the line (the price)
+#            print(price)
+
+            pprint(prices)
+
+#            elements = driver.find_elements(By.CSS_SELECTOR,'span.currency.plus')
+#            for element in elements:
+#                print(element.text)
+
+#            price = element.text
+#            print(price)
+#            assert price.startswith('R')   
+
+            assert len(prices) > 0
+
+            res[url] = prices
+
+#            sys.exit(1)
+
+        return res
+    
+    finally:
+        # close the browser
+        driver.quit()
+
+
+def main():
+    products = load_products()
+    prices = get_prices(products)
+#    print(prices)
+
+
+if __name__ == '__main__':
+    main()

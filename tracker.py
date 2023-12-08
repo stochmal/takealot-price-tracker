@@ -106,8 +106,10 @@ def main():
         for price in prices_now[url]['prices']:
             if price not in PRICES[url]['prices']:  # Avoid adding duplicate prices
                 new_price = True
-                print(url, '-', price, PRICES[url]['status'])
+
                 PRICES[url]['prices'].append(price)
+
+                print(url, '-', ['>' + p + '<' if p == price else p for p in PRICES[url]['prices']], '-', PRICES[url]['status'])
 
     save_prices(PRICES)
 
@@ -117,7 +119,7 @@ if __name__ == '__main__':
     try:
         res=main()
         if res:
-            input('New price found!\nPress enter to exit...')
+            input('New price(s) found!\nPress enter to exit...')
     except:
         traceback.print_exc()  # This will print the full stack trace
         input('Press enter to exit...')

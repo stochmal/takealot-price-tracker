@@ -54,7 +54,8 @@ def get_prices(products):
 
             # Wait until the 'div.sf-buybox' element is loaded
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox')))
-            time.sleep(1)
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.stock-availability-status')))            
+            time.sleep(2)
 
             # retrieve text
 

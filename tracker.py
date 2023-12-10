@@ -99,18 +99,20 @@ def main():
 
     new_price = False
     for url in prices_now.keys():
-        if url not in PRICES:
+        do_price_check = True
+        if url not in PRICES: # new item
             PRICES[url] = {'prices':[], 'status':prices_now[url]['status']}
-        else:
+            do_price_check = False
+        else: # existing item
             PRICES[url]['status'] = prices_now[url]['status']
 
         for price in prices_now[url]['prices']:
             if price not in PRICES[url]['prices']:  # Avoid adding duplicate prices
-                new_price = True
-
                 PRICES[url]['prices'].append(price)
 
-                print(url, '-', ['>' + p + '<' if p == price else p for p in PRICES[url]['prices']], '-', PRICES[url]['status'])
+                if do_price_check:
+                    print(url, '-', ['>' + p + '<' if p == price else p for p in PRICES[url]['prices']], '-', PRICES[url]['status'])
+                    new_price = True
 
     save_prices(PRICES)
 

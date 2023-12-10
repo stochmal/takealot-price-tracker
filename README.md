@@ -7,5 +7,5 @@ python tracker.py
 ```
 program output will pause if price change is detected
 
-you need to install **python3** and [Firefox browser](https://www.mozilla.org/en-US/firefox/new/) 
-also adjust path in **run.bat** for python.exe
+you need to install [Python 3](https://www.python.org/downloads/) and [Firefox browser](https://www.mozilla.org/en-US/firefox/new/) 
+and also adjust path in **run.bat** for python.exe

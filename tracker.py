@@ -2,7 +2,9 @@ import time
 import sys
 import json
 import traceback
+import colorama
 
+from colorama import Fore, Back, Style
 from pprint import pprint
 
 from selenium import webdriver
@@ -11,6 +13,7 @@ from selenium.webdriver.firefox.options import Options
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 
 def save_prices(prices):
     with open('prices.json', 'w') as f:
@@ -44,7 +47,14 @@ def get_prices(products):
     try:
         for url in products:
             url = url.strip()
+
             if not url:
+                continue
+
+            if url.startswith('###'):
+                break
+
+            if url.startswith('#'):
                 continue
 
             # navigate to a page
@@ -85,6 +95,8 @@ def get_prices(products):
 
 
 def main():
+    colorama.init(autoreset=True)
+
     products = load_products()
 
 #    products = products[0:1] # TAKE OUT
@@ -107,16 +119,38 @@ def main():
             PRICES[url]['status'] = prices_now[url]['status']
 
         for price in prices_now[url]['prices']:
+
             if price not in PRICES[url]['prices']:  # Avoid adding duplicate prices
                 PRICES[url]['prices'].append(price)
 
                 if do_price_check:
-                    print(url, '-', ['>' + p + '<' if p == price else p for p in PRICES[url]['prices']], '-', PRICES[url]['status'])
+
+                    price_now = int(price.replace('R','').replace(',','').strip())
+                    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in PRICES[url]['prices']]
+
+                    style = Style.NORMAL
+                    if price_now <= min(prices_clean):
+                        style = Style.BRIGHT + Fore.WHITE + Back.GREEN
+                    elif price_now >= max(prices_clean):
+                        style = Style.BRIGHT + Fore.WHITE + Back.RED
+                    else:
+                        style = Style.BRIGHT + Fore.WHITE + Back.BLUE
+
+                    print(url, '-', end=' ')
+                    for p in PRICES[url]['prices']:
+                        if p == price:
+                            print(style + p + Style.RESET_ALL, end=' ')
+                        else:
+                            print(p, end=' ')
+                    print('-', PRICES[url]['status'])
+
+#                    print(url, '-', ['>' + p + '<' if p == price else p for p in PRICES[url]['prices']], '-', PRICES[url]['status'])
                     new_price = True
 
     save_prices(PRICES)
 
     return new_price
+
 
 if __name__ == '__main__':
     try:

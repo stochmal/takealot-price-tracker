@@ -8,9 +8,13 @@ background_colors = [Back.BLACK, Back.RED, Back.GREEN, Back.YELLOW, Back.BLUE, B
 
 color_names = ['BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE']
 
+styles = [Style.DIM, Style.NORMAL, Style.BRIGHT]
+style_names = ['DIM', 'NORMAL', 'BRIGHT']
+
 for j, bg in enumerate(background_colors):
     for i, fg in enumerate(foreground_colors):
-        print(f"{fg}{bg}Foreground color: {color_names[i]} Background color: {color_names[j]}")
+        for s, style in enumerate(styles):
+            print(f"{style}{fg}{bg} Style: {style_names[s]} Foreground color: {color_names[i]} Background color: {color_names[j]}")
 
 print(Style.RESET_ALL)
 

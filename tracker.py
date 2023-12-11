@@ -78,12 +78,20 @@ def get_prices(products):
 
             # <div class="cell shrink stock-availability-status" data-ref="stock-availability-status"><span>In stock</span></div>
             element = driver.find_element(By.CSS_SELECTOR,'div.stock-availability-status')
-
             status = element.text
-            print(prices,'-',status)
+
+            # <span class="rounded-pill " data-ref="buybox-only-x-left">Only 20 left</span>
+#            warning = driver.find_element(By.CSS_SELECTOR,'span.rounded-pill')
+            warnings = driver.find_elements(By.CSS_SELECTOR,'span.rounded-pill')
+            if warnings:
+                warning = warnings[0].text
+            else:
+                warning = ''
+
+            print(prices, '-', status, '- ' + Style.BRIGHT + Fore.WHITE + Back.YELLOW + warning if warning else "")                     
             print()
             
-            res[url] = {'prices':prices, 'status':status}
+            res[url] = {'prices':prices, 'status':status,'warning':warning}
 
 #            sys.exit(1)
 
@@ -113,10 +121,11 @@ def main():
     for url in prices_now.keys():
         do_price_check = True
         if url not in PRICES: # new item
-            PRICES[url] = {'prices':[], 'status':prices_now[url]['status']}
+            PRICES[url] = {'prices':[], 'status':prices_now[url]['status'], 'warning':prices_now[url]['warning']}
             do_price_check = False
         else: # existing item
             PRICES[url]['status'] = prices_now[url]['status']
+            PRICES[url]['warning'] = prices_now[url]['warning']
 
         for price in prices_now[url]['prices']:
 
@@ -142,7 +151,7 @@ def main():
                             print(style + p + Style.RESET_ALL, end=' ')
                         else:
                             print(p, end=' ')
-                    print('-', PRICES[url]['status'])
+                    print('-', PRICES[url]['status'], '- ' + Style.BRIGHT + Fore.WHITE + Back.YELLOW + PRICES[url]['warning'] if 'warning' in PRICES[url] and PRICES[url]['warning'] else "")
 
 #                    print(url, '-', ['>' + p + '<' if p == price else p for p in PRICES[url]['prices']], '-', PRICES[url]['status'])
                     new_price = True

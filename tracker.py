@@ -88,7 +88,14 @@ def get_prices(products):
             else:
                 warning = ''
 
-            print(prices, '-', status, '- ' + Style.BRIGHT + Fore.WHITE + Back.YELLOW + warning if warning else "")                     
+            if 'out of stock' in status:
+                status_color = Style.BRIGHT + Fore.WHITE + Back.RED + status
+            elif 'In stock' not in status:
+                status_color = Style.BRIGHT + Fore.WHITE + Back.YELLOW + status
+            else:
+                status_color = Style.BRIGHT + Fore.WHITE + Back.GREEN + status
+
+            print(prices, '-', status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")                     
             print()
             
             res[url] = {'prices':prices, 'status':status,'warning':warning}
@@ -134,24 +141,38 @@ def main():
 
                 if do_price_check:
 
+                    status = PRICES[url]['status']
+                    if 'warning' in PRICES[url]:
+                        warning = PRICES[url]['warning']
+                    else:
+                        warning = ''
+
                     price_now = int(price.replace('R','').replace(',','').strip())
                     prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in PRICES[url]['prices']]
 
-                    style = Style.NORMAL
+                    price_color = Style.NORMAL
                     if price_now <= min(prices_clean):
-                        style = Style.BRIGHT + Fore.WHITE + Back.GREEN
+                        price_color = Style.BRIGHT + Fore.WHITE + Back.GREEN
                     elif price_now >= max(prices_clean):
-                        style = Style.BRIGHT + Fore.WHITE + Back.RED
+                        price_color = Style.BRIGHT + Fore.WHITE + Back.RED
                     else:
-                        style = Style.BRIGHT + Fore.WHITE + Back.BLUE
+                        price_color = Style.BRIGHT + Fore.WHITE + Back.BLUE
 
                     print(url, '-', end=' ')
                     for p in PRICES[url]['prices']:
                         if p == price:
-                            print(style + p + Style.RESET_ALL, end=' ')
+                            print(price_color + p + Style.RESET_ALL, end=' ')
                         else:
                             print(p, end=' ')
-                    print('-', PRICES[url]['status'], '- ' + Style.BRIGHT + Fore.WHITE + Back.YELLOW + PRICES[url]['warning'] if 'warning' in PRICES[url] and PRICES[url]['warning'] else "")
+
+                    if 'out of stock' in status:
+                        status_color = Style.BRIGHT + Fore.WHITE + Back.RED + status
+                    elif 'In stock' not in status:
+                        status_color = Style.BRIGHT + Fore.WHITE + Back.YELLOW + status
+                    else:
+                        status_color = Style.BRIGHT + Fore.WHITE + Back.GREEN + status
+
+                    print('-', status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")
 
 #                    print(url, '-', ['>' + p + '<' if p == price else p for p in PRICES[url]['prices']], '-', PRICES[url]['status'])
                     new_price = True

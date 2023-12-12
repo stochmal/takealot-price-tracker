@@ -39,6 +39,29 @@ def get_status_color(status):
     else:
         return Style.BRIGHT + Fore.WHITE + Back.GREEN + status
 
+def get_price_color(price_now, prices):
+
+    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices]
+
+    res = ""
+
+    for i,price_ in enumerate(prices):
+
+        price_clean = int(price_.replace('R','').replace(',','').strip())
+        price_color = Style.NORMAL
+        if price_ == price_now:
+            price_color = Style.BRIGHT + Fore.WHITE + Back.BLUE
+        elif price_clean <= min(prices_clean):
+            price_color = Style.BRIGHT + Fore.WHITE + Back.GREEN
+        elif price_clean >= max(prices_clean):
+            price_color = Style.BRIGHT + Fore.WHITE + Back.RED
+        else:
+            price_color = Style.RESET_ALL
+
+        res += price_color + prices[i] + Style.RESET_ALL + ' '
+
+    return res.strip()
+
 def get_prices(products):
     res = {}
 
@@ -67,7 +90,8 @@ def get_prices(products):
 
             # navigate to a page
 #            url = "https://www.takealot.com/xiaomi-redmi-9t-128gb-carbon-grey/PLID72013248"
-            print(url)
+#            print(url, '-', end=' ')                 
+            print(url)              
             driver.get(url)
 
             # Wait until the 'div.sf-buybox' element is loaded
@@ -95,10 +119,12 @@ def get_prices(products):
                 warning = warnings[0].text
             else:
                 warning = ''
+            
+            print(get_price_color(prices[0], prices), '-', end=' ')
 
             status_color = get_status_color(status)
-
-            print(prices, '-', status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")                     
+            
+            print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")                     
             print()
             
             res[url] = {'prices':prices, 'status':status,'warning':warning}
@@ -117,13 +143,9 @@ def main():
 
     products = load_products()
 
-#    products = products[0:1] # TAKE OUT
-#    pprint(products)
-
     prices_now = get_prices(products)
   
-#    print(prices_now)
-    print('-'*80)
+    print('-'*35,'new prices','-'*35)
 
     PRICES = load_prices()
 
@@ -150,29 +172,14 @@ def main():
                     else:
                         warning = ''
 
-                    price_now = int(price.replace('R','').replace(',','').strip())
-                    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in PRICES[url]['prices']]
+#                    print(url, '-', end=' ')                    
+                    print(url)   
 
-                    price_color = Style.NORMAL
-                    if price_now <= min(prices_clean):
-                        price_color = Style.BRIGHT + Fore.WHITE + Back.GREEN
-                    elif price_now >= max(prices_clean):
-                        price_color = Style.BRIGHT + Fore.WHITE + Back.RED
-                    else:
-                        price_color = Style.BRIGHT + Fore.WHITE + Back.BLUE
-
-                    print(url, '-', end=' ')
-                    for p in PRICES[url]['prices']:
-                        if p == price:
-                            print(price_color + p + Style.RESET_ALL, end=' ')
-                        else:
-                            print(p, end=' ')
+                    print(get_price_color(price, PRICES[url]['prices']), '-', end=' ')
 
                     status_color = get_status_color(status)
+                    print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")
 
-                    print('-', status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")
-
-#                    print(url, '-', ['>' + p + '<' if p == price else p for p in PRICES[url]['prices']], '-', PRICES[url]['status'])
                     new_price = True
 
     save_prices(PRICES)

@@ -31,6 +31,14 @@ def load_products():
         products = f.readlines()
     return products
 
+def get_status_color(status):
+    if 'out of stock' in status:
+        return Style.BRIGHT + Fore.WHITE + Back.RED + status
+    elif 'In stock' not in status:
+        return Style.BRIGHT + Fore.WHITE + Back.YELLOW + status
+    else:
+        return Style.BRIGHT + Fore.WHITE + Back.GREEN + status
+
 def get_prices(products):
     res = {}
 
@@ -88,12 +96,7 @@ def get_prices(products):
             else:
                 warning = ''
 
-            if 'out of stock' in status:
-                status_color = Style.BRIGHT + Fore.WHITE + Back.RED + status
-            elif 'In stock' not in status:
-                status_color = Style.BRIGHT + Fore.WHITE + Back.YELLOW + status
-            else:
-                status_color = Style.BRIGHT + Fore.WHITE + Back.GREEN + status
+            status_color = get_status_color(status)
 
             print(prices, '-', status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")                     
             print()
@@ -165,12 +168,7 @@ def main():
                         else:
                             print(p, end=' ')
 
-                    if 'out of stock' in status:
-                        status_color = Style.BRIGHT + Fore.WHITE + Back.RED + status
-                    elif 'In stock' not in status:
-                        status_color = Style.BRIGHT + Fore.WHITE + Back.YELLOW + status
-                    else:
-                        status_color = Style.BRIGHT + Fore.WHITE + Back.GREEN + status
+                    status_color = get_status_color(status)
 
                     print('-', status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")
 

@@ -145,7 +145,7 @@ def main():
 
     prices_now = get_prices(products)
   
-    print('-'*35,'new prices','-'*35)
+    print('-'*28,'new prices found below','-'*28)
 
     PRICES = load_prices()
 
@@ -179,6 +179,7 @@ def main():
 
                     status_color = get_status_color(status)
                     print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")
+                    print()
 
                     new_price = True
 

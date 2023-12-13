@@ -159,7 +159,10 @@ def main():
             PRICES[url]['status'] = prices_now[url]['status']
             PRICES[url]['warning'] = prices_now[url]['warning']
 
+        price_now = None # it's always the first price in the list
         for price in prices_now[url]['prices']:
+            if price_now is None:
+                price_now = price
 
             if price not in PRICES[url]['prices']:  # Avoid adding duplicate prices
                 PRICES[url]['prices'].append(price)
@@ -175,7 +178,7 @@ def main():
 #                    print(url, '-', end=' ')                    
                     print(url)   
 
-                    print(get_price_color(price, PRICES[url]['prices']), '-', end=' ')
+                    print(get_price_color(price_now, PRICES[url]['prices']), '-', end=' ')
 
                     status_color = get_status_color(status)
                     print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")

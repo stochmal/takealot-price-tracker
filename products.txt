@@ -35,6 +35,9 @@ https://www.takealot.com/dremel-shaping-platform-attachment-576/PLID92089408
 https://www.takealot.com/dremel-versa-power-cleaner-kit/PLID69450324
 https://www.takealot.com/dremel-versaflame/PLID36956563
 https://www.takealot.com/dremel-wall-tile-cutting-kit-566/PLID93305005
+https://www.takealot.com/duratool-d00677-240v-plug-type-temperature-controlled-soldering-station/PLID70298860
+https://www.takealot.com/duratool-d00678-240v-48w-esd-safe-temperature-controlled-soldering-station/PLID70335178
+https://www.takealot.com/duratool-d01856-soldering-gun-kit/PLID91449252
 https://www.takealot.com/elecstor-12v-24a-lithium-battery-lifepo4-alarm-or-gate-motor-replacement/PLID92690772
 https://www.takealot.com/energizer-lithium-aa-battery-card-4/PLID15125837
 https://www.takealot.com/energizer-recharge-extreme-nimh-aa-2300mah-battery-card-4/PLID28058169
@@ -44,10 +47,17 @@ https://www.takealot.com/eveready-lithium-aa-batteries-pack-of-6/PLID41695084
 https://www.takealot.com/eveready-lithium-aaa-batteries-pack-of-4/PLID41695082
 https://www.takealot.com/eveready-lithium-aaa-batteries-pack-of-6/PLID41695085
 https://www.takealot.com/finnteck-es0639-outdoor-solar-emergency-charging-unit/PLID92823142
+https://www.takealot.com/fnirsi-1014d-digital-dual-channel-oscilloscope-signal-generator/PLID72482472
+https://www.takealot.com/fnirsi-dso-tc3-handheld-digital-oscilloscope-component-tester-etc/PLID93293395
+https://www.takealot.com/fnirsi-gc-01-geiger-counter-or-nuclear-radiation-detector/PLID93406176
+https://www.takealot.com/fnirsi-smart-electric-soldering-iron-pd-65w-adjustable-constant-/PLID93489126
+https://www.takealot.com/fnirsi-smart-electric-soldering-iron-pd-65w-adjustable-constant-temperature-set4/PLID93489127
 https://www.takealot.com/gigabyte-geforce-rtx-4070-aero-oc-12g/PLID93648065
 https://www.takealot.com/gizzu-12v-7ah-lithium-iron-phosphate-lifepo4-gate-battery/PLID92282206
 https://www.takealot.com/gp-aa-lithium-batteries/PLID34193811
 https://www.takealot.com/gp-lithium-aaa-1-5v-card-of-2/PLID66382433
+https://www.takealot.com/hantek2d72-handheld-oscilloscope-scopemeter/PLID73023075
+https://www.takealot.com/hantek6022be-usb-oscilloscope/PLID69452006
 https://www.takealot.com/high-power-burning-blue-rechargeable-laser-pointer-450nm-5000mw/PLID72726265
 https://www.takealot.com/hybrid-hmh7-moving-head-disco-light/PLID50067733
 https://www.takealot.com/knipex-7-in-1-multiplier/PLID70847896
@@ -86,6 +96,7 @@ https://www.takealot.com/korg-volca-modular-module/PLID54508568
 https://www.takealot.com/korg-wavestate-mkii-37-key-wave-sequencing-synthesizer/PLID94094314
 https://www.takealot.com/korg-wavestate-se-platinum-limited-edition-synthesizer/PLID94094318
 https://www.takealot.com/korg-wavestate-se-synthesizer/PLID94615339
+https://www.takealot.com/kt-yx-878d-2-in-1-automatic-bga-rework-station/PLID71787201
 https://www.takealot.com/kurzweil-artis/PLID53117611
 https://www.takealot.com/kurzweil-kp110-portable-arranger-keyboard/PLID48276666
 https://www.takealot.com/kurzweil-sp1/PLID53117612
@@ -121,7 +132,9 @@ https://www.takealot.com/optimate-dc-duo-12v-2a-tm500-for-lead-acid-and-lithium-
 https://www.takealot.com/optimate-lithium-battery-charger-0-8a/PLID52342327
 https://www.takealot.com/optimizor-premium-dry-dog-food-20kg/PLID54590271
 https://www.takealot.com/optimizor-premium-dry-dog-food-40kg/PLID54590272
+https://www.takealot.com/original-quick-700-portable-2-in-1-hot-air-smd-rework-soldering-station/PLID91115188
 https://www.takealot.com/original-schwarz-jaw-harp-classic-size-8-silver-colour/PLID72764716
+https://www.takealot.com/portable-dc-electric-welding-machine/PLID93054602
 https://www.takealot.com/presonus-atom-midi-controller/PLID53188562
 https://www.takealot.com/presonus-atom-producer-lab/PLID53022462
 https://www.takealot.com/presonus-atom-sq/PLID70840727
@@ -151,6 +164,7 @@ https://www.takealot.com/romoss-zeus-60000mah-power-bank/PLID90028332
 https://www.takealot.com/schwarz-jaw-harp-blue-classic-size-8-authentic-original-austria/PLID94495258
 https://www.takealot.com/schwarz-jaw-harp-classic-size-8-authentic-original-austria/PLID94157415
 https://www.takealot.com/schwarz-jaw-harp-red-classic-size-8-authentic-original-austria/PLID94495259
+https://www.takealot.com/soldering-station-kada-8509td/PLID93445660
 https://www.takealot.com/tascam-dr-40x-four-track-digital-audio-recorder-and-usb-audio-interface/PLID90187782
 https://www.takealot.com/tl-deco-x60-ax3000-whole-home-mesh-wi-fi-6-system-3-pack/PLID71423268
 https://www.takealot.com/tp-link-deco-x20-ax1800-whole-home-mesh-wifi-system-new-wi-fi-6-technology/PLID69080202

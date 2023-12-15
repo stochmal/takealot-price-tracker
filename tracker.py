@@ -144,18 +144,24 @@ def main():
     products = load_products()
 
     prices_now = get_prices(products)
-  
-    print('-'*28,'new prices found below','-'*28)
+    
+    print('-'*25,'prices or back in stock alert','-'*25)
 
     PRICES = load_prices()
 
-    new_price = False
+    got_alert = False
     for url in prices_now.keys():
-        do_price_check = True
+        back_in_stock = False
+        new_item = False
         if url not in PRICES: # new item
             PRICES[url] = {'prices':[], 'status':prices_now[url]['status'], 'warning':prices_now[url]['warning']}
-            do_price_check = False
+            new_item = True
         else: # existing item
+
+            if prices_now[url]['status'] != PRICES[url]['status']:
+                if prices_now[url]['status'] == 'In stock':
+                    back_in_stock = True
+
             PRICES[url]['status'] = prices_now[url]['status']
             PRICES[url]['warning'] = prices_now[url]['warning']
 
@@ -164,10 +170,12 @@ def main():
             if price_now is None:
                 price_now = price
 
-            if price not in PRICES[url]['prices']:  # Avoid adding duplicate prices
-                PRICES[url]['prices'].append(price)
+            if not new_item:
+                new_price = price not in PRICES[url]['prices']
+                if new_price:  
+                    PRICES[url]['prices'].append(price)
 
-                if do_price_check:
+                if new_price or back_in_stock:
 
                     status = PRICES[url]['status']
                     if 'warning' in PRICES[url]:
@@ -184,11 +192,11 @@ def main():
                     print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")
                     print()
 
-                    new_price = True
+                    got_alert = True
 
     save_prices(PRICES)
 
-    return new_price
+    return got_alert
 
 
 if __name__ == '__main__':

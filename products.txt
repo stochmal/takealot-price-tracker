@@ -22,6 +22,7 @@ https://www.takealot.com/asus-zenwifi-ax-mini-xd4-3-pk-ax1800-mesh-wifi-6-system
 https://www.takealot.com/asus-zenwifi-xd5-ax3000-2-pack-mesh-wifi-system/PLID93202060
 https://www.takealot.com/asus-zenwifi-xd5-ax3000-3-pack-mesh-wifi-system/PLID93202061
 https://www.takealot.com/ax3000-whole-home-mesh-wifi-6-system-3-pack/PLID90279949
+https://www.takealot.com/baseus-bipow-digital-display-power-bank-30000mah-15w-black/PLID93896273
 https://www.takealot.com/bosch-glm-50-c-laser-range-finder/PLID46864746
 https://www.takealot.com/bosch-glm-50-c-professional-laser-measure/PLID91473161
 https://www.takealot.com/brake-fluid-liquid-tester-with-5-led-indicators-for-car/PLID93940377
@@ -60,6 +61,8 @@ https://www.takealot.com/fnirsi-gc-01-geiger-counter-or-nuclear-radiation-detect
 https://www.takealot.com/fnirsi-lcr-tc1-component-transistor-tester-lcr-meter/PLID94212793
 https://www.takealot.com/fnirsi-smart-electric-soldering-iron-pd-65w-adjustable-constant-/PLID93489126
 https://www.takealot.com/fnirsi-smart-electric-soldering-iron-pd-65w-adjustable-constant-temperature-set4/PLID93489127
+https://www.takealot.com/fonsi-premium-30000mah-power-bank/PLID53333092
+https://www.takealot.com/fonsi-premium-30000mah-power-bank/PLID71930539
 https://www.takealot.com/gigabyte-geforce-rtx-4070-aero-oc-12g/PLID93648065
 https://www.takealot.com/gizzu-12v-7ah-lithium-iron-phosphate-lifepo4-gate-battery/PLID92282206
 https://www.takealot.com/gp-aa-lithium-batteries/PLID34193811
@@ -161,8 +164,11 @@ https://www.takealot.com/roland-juno-ds88-key-synthesizer/PLID54545465
 https://www.takealot.com/roland-xps-10-expandable-synthesizer-pro-keyboard/PLID36963098
 https://www.takealot.com/roland-xps-10-preformance-synth/PLID41546578
 https://www.takealot.com/romoss-ares-20-20000mah-dual-usb-power-bank-black/PLID59535457
+https://www.takealot.com/romoss-power-bank-sense-8f-30000mah-22-5w-wh-fast-charging/PLID94211680
+https://www.takealot.com/romoss-power-bank-sense8-30000mah-wh-fast-charging/PLID94212634
 https://www.takealot.com/romoss-power-bank-zeus-40000mah-22-5w-bk-fast-charging/PLID94212529
 https://www.takealot.com/romoss-power-bank-zeus-40000mah-22-5w/PLID93162183
+https://www.takealot.com/romoss-pulse-10-10000mah-power-bank-white/PLID72054946
 https://www.takealot.com/romoss-zeus-30000mah-30w-power-bank-includes-cable/PLID93412474
 https://www.takealot.com/romoss-zeus-30000mah-30w-power-bank/PLID91714349
 https://www.takealot.com/romoss-zeus-40000mah-22-5w-power-bank-includes-cable/PLID93412473
@@ -179,6 +185,7 @@ https://www.takealot.com/schwarz-jaw-harp-classic-size-8-authentic-original-aust
 https://www.takealot.com/schwarz-jaw-harp-red-classic-size-8-authentic-original-austria/PLID94495259
 https://www.takealot.com/soldering-station-kada-8509td/PLID93445660
 https://www.takealot.com/sunshine-p-3005a-30v-5a-dc-digital-programmable-adjustable-power/PLID93729241
+https://www.takealot.com/supersonic-portable-lightweight-power-bank-high-capacity-10000mah-white/PLID93033548
 https://www.takealot.com/tascam-dr-40x-four-track-digital-audio-recorder-and-usb-audio-interface/PLID90187782
 https://www.takealot.com/the-gapp-30x-magnifying-glass-loupe-with-light/PLID73054624
 https://www.takealot.com/tl-deco-x60-ax3000-whole-home-mesh-wi-fi-6-system-3-pack/PLID71423268

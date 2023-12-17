@@ -171,39 +171,36 @@ def main():
             PRICES_OLD[url]['status'] = status_now
             PRICES_OLD[url]['warning'] = warning_now
 
-        price_now = None # it's always the first price in the list
-        for price in prices_now[url]['prices']:
-            if price_now is None:
-                price_now = price
+        price_now = prices_now[url]['prices'][0] # it's always the first price in the list
+        new_prices = [price for price in prices_now[url]['prices'] if price not in PRICES_OLD[url]['prices']]
 
-            if not new_item:
-                new_price = price not in PRICES_OLD[url]['prices']
-                if new_price:  
-                    PRICES_OLD[url]['prices'].append(price)
+        for new_price in new_prices:
+            PRICES_OLD[url]['prices'].append(new_price)
 
-                if new_price or status_old != status_now or warning_old != warning_now: # or back_in_stock:
+        if not new_item:
+            if new_prices or status_old != status_now or warning_old != warning_now: # or back_in_stock:
 
 #                    print(url, '-', end=' ')                    
-                    print(url)   
+                print(url)   
 
 #                    print(get_price_color(price_now, PRICES[url]['prices']), '-', end=' ')
-                    print(get_price_color(price_now, PRICES_OLD[url]['prices']))
+                print(get_price_color(price_now, PRICES_OLD[url]['prices']))
 
-                    if status_old != status_now:
-                        print(get_status_color(status_old), Style.RESET_ALL, '--> ', get_status_color(status_now))
+                if status_old != status_now:
+                    print(get_status_color(status_old), Style.RESET_ALL, '--> ', get_status_color(status_now))
+                else:
+                    print(get_status_color(status_now))
+
+                if warning_now:    
+                    if warning_old != warning_now:
+                        print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_old if warning_old else ""
+                            , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")                        
                     else:
-                        print(get_status_color(status_now))
+                        print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
 
-                    if warning_now:    
-                        if warning_old != warning_now:
-                            print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_old if warning_old else ""
-                                , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")                        
-                        else:
-                            print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
+                print()
 
-                    print()
-
-                    got_alert = True
+                got_alert = True
 
     save_prices(PRICES_OLD)
 

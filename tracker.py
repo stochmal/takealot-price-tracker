@@ -144,26 +144,37 @@ def main():
     products = load_products()
 
     prices_now = get_prices(products)
-    
-    print('-'*25,'prices or back in stock alert','-'*25)
+
+    print('-'*37,'alerts','-'*37)
 
     PRICES = load_prices()
 
     got_alert = False
     for url in prices_now.keys():
-        back_in_stock = False
+
+        status_now = prices_now[url]['status']
+        warning_now = prices_now[url]['warning']
+
+#        back_in_stock = False
         new_item = False
         if url not in PRICES: # new item
+
+            status_old = ''
+            warning_old = ''
+
             PRICES[url] = {'prices':[], 'status':prices_now[url]['status'], 'warning':prices_now[url]['warning']}
             new_item = True
         else: # existing item
 
-            if prices_now[url]['status'] != PRICES[url]['status']:
-                if prices_now[url]['status'] == 'In stock':
-                    back_in_stock = True
+#            if prices_now[url]['status'] != PRICES[url]['status']:
+#                if prices_now[url]['status'] == 'In stock':
+#                    back_in_stock = True
 
-            PRICES[url]['status'] = prices_now[url]['status']
-            PRICES[url]['warning'] = prices_now[url]['warning']
+            status_old = PRICES[url]['status']
+            warning_old = PRICES[url]['warning']
+
+            PRICES[url]['status'] = status_now
+            PRICES[url]['warning'] = warning_now
 
         price_now = None # it's always the first price in the list
         for price in prices_now[url]['prices']:
@@ -175,21 +186,34 @@ def main():
                 if new_price:  
                     PRICES[url]['prices'].append(price)
 
-                if new_price or back_in_stock:
+                if new_price or status_old != status_now or warning_old != warning_now: # or back_in_stock:
 
-                    status = PRICES[url]['status']
-                    if 'warning' in PRICES[url]:
-                        warning = PRICES[url]['warning']
-                    else:
-                        warning = ''
+#                    status = PRICES[url]['status']
+#                    if 'warning' in PRICES[url]:
+#                        warning = PRICES[url]['warning']
+#                    else:
+#                        warning = ''
 
 #                    print(url, '-', end=' ')                    
                     print(url)   
 
-                    print(get_price_color(price_now, PRICES[url]['prices']), '-', end=' ')
+#                    print(get_price_color(price_now, PRICES[url]['prices']), '-', end=' ')
+                    print(get_price_color(price_now, PRICES[url]['prices']))
 
-                    status_color = get_status_color(status)
-                    print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")
+                    if status_old != status_now:
+                        print(get_status_color(status_old), Style.RESET_ALL, '--> ', get_status_color(status_now))
+                    else:
+                        print(get_status_color(status_now))
+
+#                    status_color = get_status_color(status_now)
+#                    print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")
+                        
+                    if warning_old != warning_now:
+                        print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_old if warning_old else ""
+                              , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")                        
+                    else:
+                        print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
+
                     print()
 
                     got_alert = True

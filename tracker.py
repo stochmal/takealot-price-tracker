@@ -39,9 +39,20 @@ def get_status_color(status):
     else:
         return Style.BRIGHT + Fore.WHITE + Back.GREEN + status
 
+def sort_prices(prices):
+
+    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices]
+
+#    pprint(list(zip(prices_clean, prices)))
+#    pprint(list(sorted(zip(prices_clean, prices))))
+
+    prices_sorted = [x for _, x in sorted(zip(prices_clean, prices))]
+
+    return prices_sorted
+
 def get_price_color(price_now, prices):
 
-    prices_sorted = sorted(prices)
+    prices_sorted = sort_prices(prices)
     prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices_sorted]
 
     res = ""
@@ -140,6 +151,11 @@ def get_prices(products):
 
 
 def main():
+
+#    prices = ['R 11,499','R 12,999','R 9,499']
+#    pprint(sort_prices(prices))
+#    return
+
     colorama.init(autoreset=True)
 
     products = load_products()

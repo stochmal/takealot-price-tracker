@@ -41,11 +41,12 @@ def get_status_color(status):
 
 def get_price_color(price_now, prices):
 
-    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices]
+    prices_sorted = sorted(prices)
+    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices_sorted]
 
     res = ""
 
-    for i,price_ in enumerate(prices):
+    for i,price_ in enumerate(prices_sorted):
 
         price_clean = int(price_.replace('R','').replace(',','').strip())
         price_color = Style.NORMAL
@@ -58,7 +59,7 @@ def get_price_color(price_now, prices):
         else:
             price_color = Style.RESET_ALL
 
-        res += price_color + prices[i] + Style.RESET_ALL + ' '
+        res += price_color + prices_sorted[i] + Style.RESET_ALL + ' '
 
     return res.strip()
 

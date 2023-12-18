@@ -152,39 +152,44 @@ def main():
     got_alert = False
     for url in prices_now.keys():
 
+        price_now = prices_now[url]['prices'][0] # it's always the first price in the list
         status_now = prices_now[url]['status']
         warning_now = prices_now[url]['warning']
 
         new_item = False
         if url not in PRICES_OLD: # new item
 
-            status_old = ''
-            warning_old = ''
-
-            PRICES_OLD[url] = {'prices':[], 'status':status_now, 'warning':warning_now}
+            PRICES_OLD[url] = {'prices':[], 'price_now':price_now, 'status':status_now, 'warning':warning_now}
             new_item = True
         else: # existing item
+
+#            price_old = PRICES_OLD[url]['price_now']
+            price_old = PRICES_OLD[url].get('price_now', '')
 
             status_old = PRICES_OLD[url]['status']
             warning_old = PRICES_OLD[url]['warning']
 
+            PRICES_OLD[url]['price_now'] = price_now
             PRICES_OLD[url]['status'] = status_now
             PRICES_OLD[url]['warning'] = warning_now
 
-        price_now = prices_now[url]['prices'][0] # it's always the first price in the list
+
         new_prices = [price for price in prices_now[url]['prices'] if price not in PRICES_OLD[url]['prices']]
 
         for new_price in new_prices:
             PRICES_OLD[url]['prices'].append(new_price)
 
         if not new_item:
-            if new_prices or status_old != status_now or warning_old != warning_now: # or back_in_stock:
+            if price_now != price_old or new_prices or status_old != status_now or warning_old != warning_now: # or back_in_stock:
 
 #                    print(url, '-', end=' ')                    
                 print(url)   
 
 #                    print(get_price_color(price_now, PRICES[url]['prices']), '-', end=' ')
                 print(get_price_color(price_now, PRICES_OLD[url]['prices']))
+
+                if price_now != price_old:
+                    print(price_old, '--> ', get_price_color(price_now, [price_now]))
 
                 if status_old != status_now:
                     print(get_status_color(status_old), Style.RESET_ALL, '--> ', get_status_color(status_now))

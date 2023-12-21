@@ -32,6 +32,7 @@ def load_products():
     return products
 
 def get_status_color(status):
+    
     if 'out of stock' in status:
         return Style.BRIGHT + Fore.WHITE + Back.RED + status
     elif 'In stock' not in status:
@@ -112,7 +113,7 @@ def get_prices(products):
             print(title)
 
             if '404' in title:
-                continue
+                res[url] = {'title':title}
             else:
                 # Wait until the 'div.sf-buybox' element is loaded
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox')))
@@ -145,10 +146,10 @@ def get_prices(products):
                 status_color = get_status_color(status)
                 
                 print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")                     
-                print()
                 
                 res[url] = {'prices':prices, 'status':status,'warning':warning,'title':title}
 
+            print()
 #            sys.exit(1)
 
         return res
@@ -177,15 +178,25 @@ def main():
     got_alert = False
     for url in prices_now.keys():
 
-        price_now = prices_now[url]['prices'][0] # it's always the first price in the list
-        status_now = prices_now[url]['status']
-        warning_now = prices_now[url]['warning']
-        title_now = prices_now[url]['title']
+        # price now is always the first price in the list
+        prices_ = prices_now[url].get('prices', [])
+        price_now = prices_[0] if prices_ else None
+#        price_now = prices_now[url]['prices'][0] 
+        
+        status_now = prices_now[url].get('status', None)
+        warning_now = prices_now[url].get('warning', None)
+        title_now = prices_now[url].get('title', None)
 
         new_item = False
         if url not in PRICES_OLD: # new item
 
-            PRICES_OLD[url] = {'prices':[], 'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
+            data = {'prices':[], 'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
+            data = {k: v for k, v in data.items() if v is not None}
+
+            PRICES_OLD[url] = data
+
+#            PRICES_OLD[url] = {'prices':[], 'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
+            
             new_item = True
         else: # existing item
 
@@ -195,12 +206,17 @@ def main():
             status_old = PRICES_OLD[url]['status']
             warning_old = PRICES_OLD[url]['warning']
 
-            PRICES_OLD[url]['price_now'] = price_now
-            PRICES_OLD[url]['status'] = status_now
-            PRICES_OLD[url]['warning'] = warning_now
-            PRICES_OLD[url]['title'] = title_now
+            data = {'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
+            data = {k: v for k, v in data.items() if v is not None}
 
-        new_prices = [price for price in prices_now[url]['prices'] if price not in PRICES_OLD[url]['prices']]
+            PRICES_OLD[url].update(data)
+
+#            PRICES_OLD[url]['price_now'] = price_now
+#            PRICES_OLD[url]['status'] = status_now
+#            PRICES_OLD[url]['warning'] = warning_now
+#            PRICES_OLD[url]['title'] = title_now
+
+        new_prices = [price for price in prices_now[url].get('prices', []) if price not in PRICES_OLD[url]['prices']]
 
         for new_price in new_prices:
             PRICES_OLD[url]['prices'].append(new_price)
@@ -212,16 +228,18 @@ def main():
                 print(url)
                 print(title_now)
 
-#                    print(get_price_color(price_now, PRICES[url]['prices']), '-', end=' ')
-                print(get_price_color(price_now, PRICES_OLD[url]['prices']))
+                if price_now is not None:
+    #                    print(get_price_color(price_now, PRICES[url]['prices']), '-', end=' ')
+                    print(get_price_color(price_now, PRICES_OLD[url]['prices']))
 
-                if price_now != price_old:
-                    print(price_old, '--> ', get_price_color(price_now, [price_now]))
+                    if price_now != price_old:
+                        print(price_old, '--> ', get_price_color(price_now, [price_now]))
 
-                if status_old != status_now:
-                    print(get_status_color(status_old), Style.RESET_ALL, '--> ', get_status_color(status_now))
-                else:
-                    print(get_status_color(status_now))
+                if status_now is not None:
+                    if status_old != status_now:
+                        print(get_status_color(status_old), Style.RESET_ALL, '--> ', get_status_color(status_now))
+                    else:
+                        print(get_status_color(status_now))
 
                 if warning_now:    
                     if warning_old != warning_now:

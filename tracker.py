@@ -75,6 +75,29 @@ def get_price_color(price_now, prices):
 
     return res.strip()
 
+def retry(func, retries=3, *, delay=1):
+    """
+    Retries a function a specified number of times on TimeoutException.
+
+    Args:
+        func: The function to retry.
+        retries: The number of retries allowed (default: 3).
+        delay: The delay in seconds between retries (default: 1).
+
+    Returns:
+        The result of the successful function call.
+
+    Raises:
+        Exception: If the function fails after all retries.
+    """
+    for _ in range(retries):
+        try:
+            return func()
+        except TimeoutException:
+            time.sleep(delay)
+            print(f"Retrying function \"{func.__name__}\"...")
+    raise Exception(f"Function \"{func.__name__}\" failed after {retries} retries.")
+
 def get_prices(products):
     res = {}
 
@@ -105,7 +128,11 @@ def get_prices(products):
 #            url = "https://www.takealot.com/xiaomi-redmi-9t-128gb-carbon-grey/PLID72013248"
 #            print(url, '-', end=' ')                 
             print(url)              
-            driver.get(url)
+
+#            driver.get(url)
+
+            # Retry driver.get() on TimeoutException
+            url = retry(lambda: driver.get(url), retries=3, delay=2)
 
             time.sleep(2) # enough time to load the base page
             

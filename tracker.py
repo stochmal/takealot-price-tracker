@@ -3,6 +3,7 @@ import sys
 import json
 import traceback
 import colorama
+import selenium
 
 from colorama import Fore, Back, Style
 from pprint import pprint
@@ -93,7 +94,7 @@ def retry(func, retries=3, *, delay=1):
     for _ in range(retries):
         try:
             return func()
-        except TimeoutException:
+        except selenium.common.exceptions.TimeoutException:
             time.sleep(delay)
             print(f"Retrying function \"{func.__name__}\"...")
     raise Exception(f"Function \"{func.__name__}\" failed after {retries} retries.")
@@ -143,9 +144,11 @@ def get_prices(products):
                 res[url] = {'title':title}
             else:
                 # Wait until the 'div.sf-buybox' element is loaded
-                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox')))
-                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.stock-availability-status')))            
+#                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox')))
+#                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.stock-availability-status')))
 
+                WebDriverWait(driver, 10).until(retry(lambda: EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox'))))
+                WebDriverWait(driver, 10).until(retry(lambda: EC.presence_of_element_located((By.CSS_SELECTOR, 'div.stock-availability-status'))))
 
                 # retrieve text
 

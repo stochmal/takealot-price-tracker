@@ -94,7 +94,8 @@ def retry(func, retries=3, *, delay=1):
     for _ in range(retries):
         try:
             return func()
-        except selenium.common.exceptions.TimeoutException:
+        except Exception as ex:
+            print(ex)
             time.sleep(delay)
             print(f"Retrying function \"{func.__name__}\"...")
     raise Exception(f"Function \"{func.__name__}\" failed after {retries} retries.")
@@ -132,10 +133,14 @@ def get_prices(products):
 
 #            driver.get(url)
 
-            # Retry driver.get() on TimeoutException
-            url = retry(lambda: driver.get(url), retries=3, delay=2)
+            try:
+                # Retry driver.get() on TimeoutException
+                retry(lambda: driver.get(url), retries=3, delay=2)
+            except Exception as ex:
+                print(ex)
+                continue
 
-            time.sleep(2) # enough time to load the base page
+#            time.sleep(2) # enough time to load the base page
             
             title = driver.title
             print(title)
@@ -143,12 +148,13 @@ def get_prices(products):
             if '404' in title:
                 res[url] = {'title':title}
             else:
-                # Wait until the 'div.sf-buybox' element is loaded
-#                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox')))
-#                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.stock-availability-status')))
-
-                WebDriverWait(driver, 10).until(retry(lambda: EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox'))))
-                WebDriverWait(driver, 10).until(retry(lambda: EC.presence_of_element_located((By.CSS_SELECTOR, 'div.stock-availability-status'))))
+                try:
+                    # Wait until the 'div.sf-buybox' element is loaded
+                    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox')))
+                    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.stock-availability-status')))
+                except Exception as ex:
+                    print(ex)
+                    continue
 
                 # retrieve text
 

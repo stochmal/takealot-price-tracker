@@ -140,7 +140,7 @@ def get_prices(products):
                 print(ex)
                 continue
 
-#            time.sleep(2) # enough time to load the base page
+            time.sleep(1) # enough time to load the base page
             
             title = driver.title
             print(title)

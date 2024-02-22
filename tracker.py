@@ -303,7 +303,7 @@ def main():
 
                 print()
 
-                if price_to_number(price_now) < price_to_number(price_old):
+                if price_now is not None and price_to_number(price_now) < price_to_number(price_old):
                     PRICE_DROPS.append(url)
 
                 got_alert = True

@@ -33,13 +33,21 @@ def load_products():
     return products
 
 def get_status_color(status):
-    
     if 'out of stock' in status:
         return Style.BRIGHT + Fore.WHITE + Back.RED + status
     elif 'In stock' not in status:
         return Style.BRIGHT + Fore.WHITE + Back.YELLOW + status
     else:
         return Style.BRIGHT + Fore.WHITE + Back.GREEN + status
+
+def get_warning_color(warning_old, warning_now = None):
+    if warning_now and warning_old != warning_now:
+        return (Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_old if warning_old else ""
+            , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
+    elif warning_now:
+        return (Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
+    else:
+        return ""
 
 def sort_prices(prices):
 
@@ -99,6 +107,10 @@ def retry(func, retries=3, *, delay=1):
             time.sleep(delay)
             print(f"Retrying function \"{func.__name__}\"...")
     raise Exception(f"Function \"{func.__name__}\" failed after {retries} retries.")
+
+# convert price "R 4,599" to number
+def price_to_number(price):
+    return int(price.replace('R','').replace(',','').strip())
 
 def get_prices(products):
     res = {}
@@ -211,6 +223,8 @@ def main():
 
     PRICES_OLD = load_prices()
 
+    PRICE_DROPS = []
+
     got_alert = False
     for url in prices_now.keys():
 
@@ -277,17 +291,33 @@ def main():
                     else:
                         print(get_status_color(status_now))
 
-                if warning_now:    
+                if warning_now:
+                    '''
                     if warning_old != warning_now:
                         print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_old if warning_old else ""
                             , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")                        
                     else:
                         print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
+                    '''
+                    print(get_warning_color(warning_old, warning_now))
 
                 print()
 
+                if price_to_number(price_now) < price_to_number(price_old):
+                    PRICE_DROPS.append(url)
+
                 got_alert = True
 
+    print('-'*35,'price drop','-'*35)
+    for url in PRICE_DROPS:
+        print(url)
+        print(PRICES_OLD[url]['title'])
+        print(get_price_color(PRICES_OLD[url]['price_now'], PRICES_OLD[url]['prices']))
+        print(get_status_color(PRICES_OLD[url]['status']))
+        print(get_warning_color(PRICES_OLD[url]['warning']))
+        print()
+
+    # save prices to file
     save_prices(PRICES_OLD)
 
     return got_alert

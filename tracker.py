@@ -33,9 +33,9 @@ def load_products():
     return products
 
 def get_status_color(status):
-    if 'out of stock' in status:
+    if 'out of stock' in status.lower():
         return Style.BRIGHT + Fore.WHITE + Back.RED + status
-    elif 'In stock' not in status:
+    elif 'in stock' not in status.lower():
         return Style.BRIGHT + Fore.WHITE + Back.YELLOW + status
     else:
         return Style.BRIGHT + Fore.WHITE + Back.GREEN + status
@@ -162,8 +162,8 @@ def get_prices(products):
             else:
                 try:
                     # Wait until the 'div.sf-buybox' element is loaded
-                    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.sf-buybox')))
-                    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.stock-availability-status')))
+                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.sf-buybox [data-ref='price']")))
+                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.sf-buybox [data-ref='in-stock-indicator']")))
                 except Exception as ex:
                     print(ex)
                     continue
@@ -171,15 +171,28 @@ def get_prices(products):
                 # retrieve text
 
                 # <span class="currency plus currency-module_currency_29IIm" data-ref="buybox-price-main">R 4,250</span>
-                element = driver.find_element(By.CSS_SELECTOR,'div.sf-buybox')
+#                element = driver.find_element(By.CSS_SELECTOR,'div.sf-buybox')
+#                element = driver.find_element(By.CSS_SELECTOR, "div[class*='pdp-module_sidebar-buybox']")
+                element = driver.find_element(By.CSS_SELECTOR, "div.sf-buybox [data-ref='price'] > span:first-child")
 
                 # Extract the prices from the element's text
-                prices = [price for price in element.text.split('\n') if price.startswith('R')]
+#                prices = [price for price in element.text.split('\n') if price.startswith('R')]
+
+#                pprint(element)
+#                print(dir(element))
+
+                prices = [element.text]
+
+#                pprint(prices)
                 assert len(prices) > 0
 
                 # <div class="cell shrink stock-availability-status" data-ref="stock-availability-status"><span>In stock</span></div>
-                element = driver.find_element(By.CSS_SELECTOR,'div.stock-availability-status')
+                element = driver.find_element(By.CSS_SELECTOR,"div.sf-buybox [data-ref='in-stock-indicator']")
                 status = element.text
+                status = status.replace('\n',' ').strip()
+
+                if 'get it tomorrow' in status.lower():
+                    status = 'In stock'
 
                 # <span class="rounded-pill " data-ref="buybox-only-x-left">Only 20 left</span>
     #            warning = driver.find_element(By.CSS_SELECTOR,'span.rounded-pill')
@@ -188,7 +201,8 @@ def get_prices(products):
                     warning = warnings[0].text
                 else:
                     warning = ''
-                
+#                print('warning:', warning)
+
                 print(get_price_color(prices[0], prices), '-', end=' ')
 
                 status_color = get_status_color(status)
@@ -196,6 +210,9 @@ def get_prices(products):
                 print(status_color, '- ' + Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning if warning else "")                     
                 
                 res[url] = {'prices':prices, 'status':status,'warning':warning,'title':title}
+
+#                pprint(res[url])
+#                input('Press enter to continue...')
 
             print()
 #            sys.exit(1)
@@ -308,14 +325,15 @@ def main():
 
                 got_alert = True
 
-    print('-'*35,'price drop','-'*35)
+    print('#'*70,'price drop','#'*70)
     for url in PRICE_DROPS:
-        print(url)
-        print(PRICES_OLD[url]['title'])
-        print(get_price_color(PRICES_OLD[url]['price_now'], PRICES_OLD[url]['prices']))
-        print(get_status_color(PRICES_OLD[url]['status']))
-        print(get_warning_color(PRICES_OLD[url]['warning']))
-        print()
+        if 'supplier out of stock' not in PRICES_OLD[url]['status'].lower():
+            print(url)
+            print(PRICES_OLD[url]['title'])
+            print(get_price_color(PRICES_OLD[url]['price_now'], PRICES_OLD[url]['prices']))
+            print(get_status_color(PRICES_OLD[url]['status']))
+            print(get_warning_color(PRICES_OLD[url]['warning']))
+            print()
 
     # save prices to file
     save_prices(PRICES_OLD)
@@ -326,8 +344,8 @@ def main():
 if __name__ == '__main__':
     try:
         res=main()
-        if res:
-            input('Press enter to exit...')
+#        if res:
+#            input('Press enter to exit...')
     except:
         traceback.print_exc()  # This will print the full stack trace
-        input('Press enter to exit...')
+#        input('Press enter to exit...')

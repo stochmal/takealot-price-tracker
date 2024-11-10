@@ -270,8 +270,8 @@ def main():
 #            price_old = PRICES_OLD[url]['price_now']
             price_old = PRICES_OLD[url].get('price_now', '')
 
-            status_old = PRICES_OLD[url]['status']
-            warning_old = PRICES_OLD[url]['warning']
+            status_old = PRICES_OLD[url].get('status', '')
+            warning_old = PRICES_OLD[url].get('warning', '')
 
             data = {'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
             data = {k: v for k, v in data.items() if v is not None}
@@ -344,8 +344,8 @@ def main():
 if __name__ == '__main__':
     try:
         res=main()
-#        if res:
-#            input('Press enter to exit...')
+        if res:
+            input('Press enter to exit...')
     except:
         traceback.print_exc()  # This will print the full stack trace
-#        input('Press enter to exit...')
+        input('Press enter to exit...')

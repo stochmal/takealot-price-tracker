@@ -273,6 +273,8 @@ def main():
             status_old = PRICES_OLD[url].get('status', '')
             warning_old = PRICES_OLD[url].get('warning', '')
 
+            back_in_stock = 'out of stock' in status_old.lower() and status_old != status_now
+
             data = {'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
             data = {k: v for k, v in data.items() if v is not None}
 
@@ -289,9 +291,9 @@ def main():
             PRICES_OLD[url]['prices'].append(new_price)
 
         if not new_item:
-            if price_now != price_old or new_prices or status_old != status_now or warning_old != warning_now: # or back_in_stock:
+            if price_now != price_old or new_prices or status_old != status_now or warning_old != warning_now or back_in_stock:
 
-#                    print(url, '-', end=' ')                    
+#                    print(url, '-', end=' ')
                 print(url)
                 print(title_now)
 
@@ -312,7 +314,7 @@ def main():
                     '''
                     if warning_old != warning_now:
                         print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_old if warning_old else ""
-                            , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")                        
+                            , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
                     else:
                         print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
                     '''
@@ -320,12 +322,12 @@ def main():
 
                 print()
 
-                if price_now is not None and price_to_number(price_now) < price_to_number(price_old):
+                if (price_now is not None and price_to_number(price_now) < price_to_number(price_old)) or back_in_stock:
                     PRICE_DROPS.append(url)
 
                 got_alert = True
 
-    print('#'*70,'price drop','#'*70)
+    print('#'*70,'price drop and back in stock','#'*70)
     for url in PRICE_DROPS:
         if 'supplier out of stock' not in PRICES_OLD[url]['status'].lower():
             print(url)

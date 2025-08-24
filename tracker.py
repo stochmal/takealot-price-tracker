@@ -84,6 +84,24 @@ def get_price_color(price_now, prices):
 
     return res.strip()
 
+def is_lowest_price(price_now, prices):
+    """
+    Checks if the current price is the lowest among the given prices.
+
+    Args:
+        price_now: The current price to check.
+        prices: A list of prices to compare against.
+
+    Returns:
+        bool: True if the current price is the lowest, False otherwise.
+    """
+
+    if len(prices) < 2:
+        return False
+
+    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices]
+    return int(price_now.replace('R','').replace(',','').strip()) <= min(prices_clean)
+
 def retry(func, retries=3, *, delay=1):
     """
     Retries a function a specified number of times on TimeoutException.
@@ -322,8 +340,16 @@ def main():
 
                 print()
 
-                if (price_now is not None and price_to_number(price_now) < price_to_number(price_old)) or back_in_stock:
-                    PRICE_DROPS.append(url)
+                if price_now is not None:
+                    if (
+                        (price_to_number(price_now) < price_to_number(price_old))
+    #                    or back_in_stock
+                        or (
+                            'out of stock' not in status_now.lower()
+                            and is_lowest_price(price_now, PRICES_OLD[url]['prices'])
+                        )
+                    ):
+                        PRICE_DROPS.append(url)
 
                 got_alert = True
 

@@ -353,7 +353,10 @@ def main():
 
                 got_alert = True
 
+    print('#'*170)
     print('#'*70,'price drop and back in stock','#'*70)
+    print('#'*170)
+
     for url in PRICE_DROPS:
         if 'supplier out of stock' not in PRICES_OLD[url]['status'].lower():
             print(url)

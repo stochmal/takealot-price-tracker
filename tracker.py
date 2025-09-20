@@ -4,6 +4,7 @@ import json
 import traceback
 import colorama
 import selenium
+from datetime import datetime
 
 from colorama import Fore, Back, Style
 from pprint import pprint
@@ -23,7 +24,16 @@ def save_prices(prices):
 def load_prices():
     try:
         with open('prices.json', 'r') as f:
-            return json.load(f)
+            data = json.load(f)
+            # Convert old format to new format during load
+            for url in data:
+                if 'prices' in data[url]:
+                    prices = data[url]['prices']
+                    # Check if prices are in old format (just strings)
+                    if prices and isinstance(prices[0], str):
+                        # Convert to new format with today's date
+                        data[url]['prices'] = [(price, "2023-12-04") for price in prices]
+            return data
     except FileNotFoundError:
         return {}
 
@@ -50,35 +60,51 @@ def get_warning_color(warning_old, warning_now = None):
         return ""
 
 def sort_prices(prices):
-
-    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices]
-
-#    pprint(list(zip(prices_clean, prices)))
-#    pprint(list(sorted(zip(prices_clean, prices))))
-
-    prices_sorted = [x for _, x in sorted(zip(prices_clean, prices))]
-
+    # Extract just the price strings from tuples if in new format
+    if prices and isinstance(prices[0], (list, tuple)):
+        price_strings = [p[0] for p in prices]
+    else:
+        price_strings = prices
+    
+    prices_clean = [price_to_number(p) for p in price_strings]
+    prices_sorted = [x for _, x in sorted(zip(prices_clean, price_strings))]
     return prices_sorted
 
 def get_price_color(price_now, prices):
-
-    prices_sorted = sort_prices(prices)
-    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices_sorted]
+    # Extract just the price strings from tuples if in new format
+    if prices and isinstance(prices[0], (list, tuple)):
+        price_strings = [p[0] for p in prices]
+        price_dates = [p[1] for p in prices]
+    else:
+        price_strings = prices
+        price_dates = [None] * len(prices)
+    
+    # Sort prices and dates together to maintain correspondence (fixes bug with duplicate prices)
+    sorted_pairs = sorted(zip(price_strings, price_dates), key=lambda x: int(x[0].replace('R','').replace(',','').strip()))
+    prices_sorted, dates_sorted = zip(*sorted_pairs) if sorted_pairs else ([], [])
+    
+    prices_clean = [price_to_number(p) for p in prices_sorted]
+    current_date = datetime.now().strftime('%Y-%m-%d')
 
     res = ""
 
-    for i,price_ in enumerate(prices_sorted):
+    for i, price_ in enumerate(prices_sorted):
+        price_clean = price_to_number(price_)
 
-        price_clean = int(price_.replace('R','').replace(',','').strip())
-        price_color = Style.NORMAL
-        if price_ == price_now:
+        # Get the date for this price from the sorted dates
+        price_date = dates_sorted[i] if i < len(dates_sorted) else None
+
+        # Color logic: Prioritize lowest today (CYAN), then current price (BLUE), then lowest (GREEN), highest (RED), else default
+        if price_clean <= min(prices_clean) and price_date == current_date:
+            price_color = Style.BRIGHT + Fore.WHITE + Back.CYAN
+        elif price_ == price_now:
             price_color = Style.BRIGHT + Fore.WHITE + Back.BLUE
         elif price_clean <= min(prices_clean):
             price_color = Style.BRIGHT + Fore.WHITE + Back.GREEN
         elif price_clean >= max(prices_clean):
             price_color = Style.BRIGHT + Fore.WHITE + Back.RED
         else:
-            price_color = Style.RESET_ALL
+            price_color = Style.RESET_ALL + Style.NORMAL
 
         res += price_color + prices_sorted[i] + Style.RESET_ALL + ' '
 
@@ -90,17 +116,22 @@ def is_lowest_price(price_now, prices):
 
     Args:
         price_now: The current price to check.
-        prices: A list of prices to compare against.
+        prices: A list of prices to compare against (can be strings or tuples).
 
     Returns:
         bool: True if the current price is the lowest, False otherwise.
     """
-
     if len(prices) < 2:
         return False
 
-    prices_clean = [int(p.replace('R','').replace(',','').strip()) for p in prices]
-    return int(price_now.replace('R','').replace(',','').strip()) <= min(prices_clean)
+    # Extract just the price strings from tuples if in new format
+    if prices and isinstance(prices[0], (list, tuple)):
+        price_strings = [p[0] for p in prices]
+    else:
+        price_strings = prices
+    
+    prices_clean = [price_to_number(p) for p in price_strings]
+    return price_to_number(price_now) <= min(prices_clean)
 
 def retry(func, retries=3, *, delay=1):
     """
@@ -130,7 +161,7 @@ def retry(func, retries=3, *, delay=1):
 def price_to_number(price):
     return int(price.replace('R','').replace(',','').strip())
 
-def get_prices(products):
+def get_prices(products, prices_db):
     res = {}
 
     # Set up options for the driver
@@ -154,6 +185,11 @@ def get_prices(products):
                 break
 
             if url.startswith('#'):
+                continue
+
+            # Check if URL has a stored title with '404' and skip if so
+            if url in prices_db and 'title' in prices_db[url] and '404' in prices_db[url]['title']:
+                print(f"Skipping {url} due to previous 404 error.")
                 continue
 
             # navigate to a page
@@ -251,12 +287,13 @@ def main():
     colorama.init(autoreset=True)
 
     products = load_products()
+    
+    # Load PRICES_DB once here
+    PRICES_DB = load_prices()
 
-    prices_now = get_prices(products)
+    prices_now = get_prices(products, PRICES_DB)
 
     print('-'*37,'alerts','-'*37)
-
-    PRICES_OLD = load_prices()
 
     PRICE_DROPS = []
 
@@ -266,58 +303,68 @@ def main():
         # price now is always the first price in the list
         prices_ = prices_now[url].get('prices', [])
         price_now = prices_[0] if prices_ else None
-#        price_now = prices_now[url]['prices'][0] 
         
         status_now = prices_now[url].get('status', None)
         warning_now = prices_now[url].get('warning', None)
         title_now = prices_now[url].get('title', None)
 
         new_item = False
-        if url not in PRICES_OLD: # new item
+        if url not in PRICES_DB: # new item
+
+            price_old = price_now
 
             data = {'prices':[], 'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
             data = {k: v for k, v in data.items() if v is not None}
 
-            PRICES_OLD[url] = data
-
-#            PRICES_OLD[url] = {'prices':[], 'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
+            PRICES_DB[url] = data
             
             new_item = True
         else: # existing item
 
-#            price_old = PRICES_OLD[url]['price_now']
-            price_old = PRICES_OLD[url].get('price_now', '')
+            price_old = PRICES_DB[url].get('price_now', '')
 
-            status_old = PRICES_OLD[url].get('status', '')
-            warning_old = PRICES_OLD[url].get('warning', '')
+            status_old = PRICES_DB[url].get('status', '')
+            warning_old = PRICES_DB[url].get('warning', '')
 
             back_in_stock = 'out of stock' in status_old.lower() and status_old != status_now
 
             data = {'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
             data = {k: v for k, v in data.items() if v is not None}
 
-            PRICES_OLD[url].update(data)
+            PRICES_DB[url].update(data)
 
-#            PRICES_OLD[url]['price_now'] = price_now
-#            PRICES_OLD[url]['status'] = status_now
-#            PRICES_OLD[url]['warning'] = warning_now
-#            PRICES_OLD[url]['title'] = title_now
+        # Check for new prices and add them with current date
+        stored_prices = PRICES_DB[url]['prices']
+        
+        # Extract price strings from stored prices for comparison
+        if stored_prices and isinstance(stored_prices[0], (list, tuple)):
+            stored_price_strings = [p[0] for p in stored_prices]
+        else:
+            stored_price_strings = stored_prices
 
-        new_prices = [price for price in prices_now[url].get('prices', []) if price not in PRICES_OLD[url]['prices']]
+        new_prices = [price for price in prices_now[url].get('prices', []) if price not in stored_price_strings]
 
+        current_date = datetime.now().strftime('%Y-%m-%d')
         for new_price in new_prices:
-            PRICES_OLD[url]['prices'].append(new_price)
+            PRICES_DB[url]['prices'].append((new_price, current_date))
+
+        # Update date for current price_now if it exists in prices list
+        if price_now and stored_prices:
+            for i, price_entry in enumerate(stored_prices):
+                if isinstance(price_entry, (list, tuple)) and price_entry[0] == price_now:
+                    PRICES_DB[url]['prices'][i] = (price_now, current_date)
+                    break
+                elif isinstance(price_entry, str) and price_entry == price_now:
+                    PRICES_DB[url]['prices'][i] = (price_now, current_date)
 
         if not new_item:
             if price_now != price_old or new_prices or status_old != status_now or warning_old != warning_now or back_in_stock:
 
-#                    print(url, '-', end=' ')
                 print(url)
                 print(title_now)
 
                 if price_now is not None:
-    #                    print(get_price_color(price_now, PRICES[url]['prices']), '-', end=' ')
-                    print(get_price_color(price_now, PRICES_OLD[url]['prices']))
+                    print(get_price_color(price_now, PRICES_DB[url]['prices']))
 
                     if price_now != price_old:
                         print(price_old, '--> ', get_price_color(price_now, [price_now]))
@@ -329,13 +376,6 @@ def main():
                         print(get_status_color(status_now))
 
                 if warning_now:
-                    '''
-                    if warning_old != warning_now:
-                        print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_old if warning_old else ""
-                            , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
-                    else:
-                        print(Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
-                    '''
                     print(get_warning_color(warning_old, warning_now))
 
                 print()
@@ -343,10 +383,9 @@ def main():
                 if price_now is not None:
                     if (
                         (price_to_number(price_now) < price_to_number(price_old))
-    #                    or back_in_stock
                         or (
                             'out of stock' not in status_now.lower()
-                            and is_lowest_price(price_now, PRICES_OLD[url]['prices'])
+                            and is_lowest_price(price_now, PRICES_DB[url]['prices'])
                         )
                     ):
                         PRICE_DROPS.append(url)
@@ -358,16 +397,16 @@ def main():
     print('#'*170)
 
     for url in PRICE_DROPS:
-        if 'supplier out of stock' not in PRICES_OLD[url]['status'].lower():
+        if 'supplier out of stock' not in PRICES_DB[url]['status'].lower():
             print(url)
-            print(PRICES_OLD[url]['title'])
-            print(get_price_color(PRICES_OLD[url]['price_now'], PRICES_OLD[url]['prices']))
-            print(get_status_color(PRICES_OLD[url]['status']))
-            print(get_warning_color(PRICES_OLD[url]['warning']))
+            print(PRICES_DB[url]['title'])
+            print(get_price_color(PRICES_DB[url]['price_now'], PRICES_DB[url]['prices']))
+            print(get_status_color(PRICES_DB[url]['status']))
+            print(get_warning_color(PRICES_DB[url]['warning']))
             print()
 
     # save prices to file
-    save_prices(PRICES_OLD)
+    save_prices(PRICES_DB)
 
     return got_alert
 

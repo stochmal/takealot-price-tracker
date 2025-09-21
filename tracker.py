@@ -16,15 +16,20 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from typing import Dict, List, Tuple, Optional, Any, Callable
 
-def save_prices(prices):
+
+OUT_OF_STOCK = 'Out of stock'
+IN_STOCK = 'In stock'
+
+def save_prices(prices: Dict[str, Any]) -> None:
     with open('prices.json', 'w') as f:
         json.dump(prices, f)
 
-def load_prices():
+def load_prices() -> Dict[str, Any]:
     try:
         with open('prices.json', 'r') as f:
-            data = json.load(f)
+            data: Dict[str, Any] = json.load(f)
             # Convert old format to new format during load
             for url in data:
                 if 'prices' in data[url]:
@@ -37,20 +42,20 @@ def load_prices():
     except FileNotFoundError:
         return {}
 
-def load_products():
+def load_products() -> List[str]:
     with open('products.txt') as f:
         products = f.readlines()
     return products
 
-def get_status_color(status):
-    if 'out of stock' in status.lower():
+def get_status_color(status: str) -> str:
+    if OUT_OF_STOCK.lower() in status.lower():
         return Style.BRIGHT + Fore.WHITE + Back.RED + status
-    elif 'in stock' not in status.lower():
+    elif IN_STOCK.lower() not in status.lower():
         return Style.BRIGHT + Fore.WHITE + Back.YELLOW + status
     else:
         return Style.BRIGHT + Fore.WHITE + Back.GREEN + status
 
-def get_warning_color(warning_old, warning_now = None):
+def get_warning_color(warning_old: str, warning_now: Optional[str] = None) -> Any:
     if warning_now and warning_old != warning_now:
         return (Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_old if warning_old else ""
             , Style.RESET_ALL, '--> ', Style.BRIGHT + Fore.WHITE + Back.MAGENTA + warning_now if warning_now else "")
@@ -59,7 +64,7 @@ def get_warning_color(warning_old, warning_now = None):
     else:
         return ""
 
-def sort_prices(prices):
+def sort_prices(prices: List[Any]) -> List[str]:
     # Extract just the price strings from tuples if in new format
     if prices and isinstance(prices[0], (list, tuple)):
         price_strings = [p[0] for p in prices]
@@ -70,7 +75,7 @@ def sort_prices(prices):
     prices_sorted = [x for _, x in sorted(zip(prices_clean, price_strings))]
     return prices_sorted
 
-def get_price_color(price_now, prices):
+def get_price_color(price_now: str, prices: List[Any]) -> str:
     # Extract just the price strings from tuples if in new format
     if prices and isinstance(prices[0], (list, tuple)):
         price_strings = [p[0] for p in prices]
@@ -110,7 +115,7 @@ def get_price_color(price_now, prices):
 
     return res.strip()
 
-def is_lowest_price(price_now, prices):
+def is_lowest_price(price_now: str, prices: List[Any]) -> bool:
     """
     Checks if the current price is the lowest among the given prices.
 
@@ -133,7 +138,7 @@ def is_lowest_price(price_now, prices):
     prices_clean = [price_to_number(p) for p in price_strings]
     return price_to_number(price_now) <= min(prices_clean)
 
-def retry(func, retries=3, *, delay=1):
+def retry(func: Callable[[], Any], url: str, retries: int = 3, *, delay: int = 1) -> Any:
     """
     Retries a function a specified number of times on TimeoutException.
 
@@ -150,19 +155,29 @@ def retry(func, retries=3, *, delay=1):
     """
     for _ in range(retries):
         try:
-            return func()
+            return func(url)
         except Exception as ex:
             print(ex)
             time.sleep(delay)
             print(f"Retrying function \"{func.__name__}\"...")
-    raise Exception(f"Function \"{func.__name__}\" failed after {retries} retries.")
+    last_exception = None
+    for _ in range(retries):
+        try:
+            return func()
+        except Exception as ex:
+            last_exception = ex
+            print(ex)
+            time.sleep(delay)
+            print(f"Retrying function \"{func.__name__}\"...")
+    if last_exception:
+        raise last_exception
 
 # convert price "R 4,599" to number
-def price_to_number(price):
+def price_to_number(price: str) -> int:
     return int(price.replace('R','').replace(',','').strip())
 
-def get_prices(products, prices_db):
-    res = {}
+def get_prices(products: List[str], prices_db: Dict[str, Any]) -> Dict[str, Any]:
+    res: Dict[str, Any] = {}
 
     # Set up options for the driver
     options = Options()
@@ -201,7 +216,7 @@ def get_prices(products, prices_db):
 
             try:
                 # Retry driver.get() on TimeoutException
-                retry(lambda: driver.get(url), retries=3, delay=2)
+                retry(lambda url: driver.get(url), url, retries=3, delay=2)
             except Exception as ex:
                 print(ex)
                 continue
@@ -246,7 +261,7 @@ def get_prices(products, prices_db):
                 status = status.replace('\n',' ').strip()
 
                 if 'get it tomorrow' in status.lower():
-                    status = 'In stock'
+                    status = IN_STOCK
 
                 # <span class="rounded-pill " data-ref="buybox-only-x-left">Only 20 left</span>
     #            warning = driver.find_element(By.CSS_SELECTOR,'span.rounded-pill')
@@ -278,7 +293,7 @@ def get_prices(products, prices_db):
         driver.quit()
 
 
-def main():
+def main() -> bool:
 
 #    prices = ['R 11,499','R 12,999','R 9,499']
 #    pprint(sort_prices(prices))
@@ -295,7 +310,7 @@ def main():
 
     print('-'*37,'alerts','-'*37)
 
-    PRICE_DROPS = []
+    PRICE_DROPS: List[str] = []
 
     got_alert = False
     for url in prices_now.keys():
@@ -326,7 +341,7 @@ def main():
             status_old = PRICES_DB[url].get('status', '')
             warning_old = PRICES_DB[url].get('warning', '')
 
-            back_in_stock = 'out of stock' in status_old.lower() and status_old != status_now
+            back_in_stock = OUT_OF_STOCK.lower() in status_old.lower() and status_old != status_now
 
             data = {'price_now':price_now, 'status':status_now, 'warning':warning_now, 'title':title_now}
             data = {k: v for k, v in data.items() if v is not None}
@@ -384,7 +399,7 @@ def main():
                     if (
                         (price_to_number(price_now) < price_to_number(price_old))
                         or (
-                            'out of stock' not in status_now.lower()
+                            OUT_OF_STOCK.lower() not in status_now.lower()
                             and is_lowest_price(price_now, PRICES_DB[url]['prices'])
                         )
                     ):
@@ -416,6 +431,6 @@ if __name__ == '__main__':
         res=main()
         if res:
             input('Press enter to exit...')
-    except:
+    except Exception:
         traceback.print_exc()  # This will print the full stack trace
         input('Press enter to exit...')

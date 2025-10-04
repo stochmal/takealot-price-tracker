@@ -217,14 +217,14 @@ def get_prices(products: List[str], prices_db: Dict[str, Any]) -> Dict[str, Any]
             try:
                 # Retry driver.get() on TimeoutException
                 retry(lambda url: driver.get(url), url, retries=3, delay=2)
+
+                time.sleep(1) # enough time to load the base page
+                
+                title = driver.title
+                print(title)
             except Exception as ex:
                 print(ex)
                 continue
-
-            time.sleep(1) # enough time to load the base page
-            
-            title = driver.title
-            print(title)
 
             if '404' in title:
                 res[url] = {'title':title}
@@ -357,20 +357,20 @@ def main() -> bool:
         else:
             stored_price_strings = stored_prices
 
-        new_prices = [price for price in prices_now[url].get('prices', []) if price not in stored_price_strings]
-
         current_date = datetime.now().strftime('%Y-%m-%d')
+
+        new_prices = [price for price in prices_now[url].get('prices', []) if price not in stored_price_strings]
         for new_price in new_prices:
             PRICES_DB[url]['prices'].append((new_price, current_date))
 
-        # Update date for current price_now if it exists in prices list
-        if price_now and stored_prices:
-            for i, price_entry in enumerate(stored_prices):
-                if isinstance(price_entry, (list, tuple)) and price_entry[0] == price_now:
-                    PRICES_DB[url]['prices'][i] = (price_now, current_date)
-                    break
-                elif isinstance(price_entry, str) and price_entry == price_now:
-                    PRICES_DB[url]['prices'][i] = (price_now, current_date)
+        # # Update date for current price_now if it exists in prices list
+        # if price_now and stored_prices:
+        #     for i, price_entry in enumerate(stored_prices):
+        #         if isinstance(price_entry, (list, tuple)) and price_entry[0] == price_now:
+        #             PRICES_DB[url]['prices'][i] = (price_now, current_date)
+        #             break
+        #         elif isinstance(price_entry, str) and price_entry == price_now:
+        #             PRICES_DB[url]['prices'][i] = (price_now, current_date)
 
         if not new_item:
             if price_now != price_old or new_prices or status_old != status_now or warning_old != warning_now or back_in_stock:
